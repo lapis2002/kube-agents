@@ -988,6 +988,12 @@
 # no pull request. Nightly from its first merge.
 ./tasks/health-chat-request-runs-collector/task.yaml
 
+# A delegated card written to outrun the worker budget: the worker is stopped
+# at the platform profile's 150 turns, read from the card's run row, not at the
+# 250 the fleet audits carry on their roster entries (#1947). deployer: noop,
+# no fixture; the run spends 150 trivial model calls by design, twice.
+./tasks/platform-worker-turn-budget/task.yaml
+
 # Catalogue entry 12 (a node label is removed): seeded-a's
 # seeded-shapes/arch-pinned-worker (deprecated-label-selector), a
 # nodeSelector on beta.kubernetes.io/arch, deprecated and still set.
