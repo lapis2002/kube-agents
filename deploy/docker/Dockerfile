@@ -475,12 +475,16 @@ RUN /opt/hermes/.venv/bin/python3 /tmp/cron-tirith-scan/apply_cron_tirith_scan.p
 # so the 250 the fleet audits need reached every kanban worker spawned under the
 # platform profile. The patch reads a roster entry's own `max_turns` first
 # (mirroring NousResearch/hermes-agent#134059); the audits carry 250 and the
-# profile default drops to 150. Same staging directory, one COPY and one RUN,
-# for the layer budget at the top of this file.
+# profile default drops to 150. apply_kanban_card_max_turns.py is the card-side
+# half: a card's own `max_turns` becomes the worker's `--max-turns`, so an audit
+# asked for in chat can carry its stream's budget. Same staging directory, one
+# COPY and one RUN, for the layer budget at the top of this file.
 COPY deploy/docker/patches/apply_cron_run_workdir.py \
      deploy/docker/patches/verify_cron_run_workdir.py \
      deploy/docker/patches/apply_cron_job_max_turns.py \
      deploy/docker/patches/verify_cron_job_max_turns.py \
+     deploy/docker/patches/apply_kanban_card_max_turns.py \
+     deploy/docker/patches/verify_kanban_card_max_turns.py \
      deploy/docker/patches/patchlib.py \
      /tmp/cron-run-workdir/
 RUN /opt/hermes/.venv/bin/python3 /tmp/cron-run-workdir/apply_cron_run_workdir.py /opt/hermes && \
@@ -489,6 +493,9 @@ RUN /opt/hermes/.venv/bin/python3 /tmp/cron-run-workdir/apply_cron_run_workdir.p
     /opt/hermes/.venv/bin/python3 /tmp/cron-run-workdir/apply_cron_job_max_turns.py /opt/hermes && \
     grep -q "kube-agents patch: per-job turn budget" /opt/hermes/cron/scheduler.py && \
     /opt/hermes/.venv/bin/python3 /tmp/cron-run-workdir/verify_cron_job_max_turns.py /opt/hermes && \
+    /opt/hermes/.venv/bin/python3 /tmp/cron-run-workdir/apply_kanban_card_max_turns.py /opt/hermes && \
+    grep -q "kube-agents patch: per-card turn budget" /opt/hermes/hermes_cli/kanban_db_dispatch.py && \
+    /opt/hermes/.venv/bin/python3 /tmp/cron-run-workdir/verify_kanban_card_max_turns.py /opt/hermes && \
     rm -rf /tmp/cron-run-workdir
 
 # Security: cron risk gate, execute_code refuse, and content checks (THREAT-002).
