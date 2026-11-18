@@ -1,0 +1,10 @@
+resources:
+  - deployment.yaml
+  - service.yaml
+  - podmonitoring.yaml
+  - networkpolicy.yaml
+
+configMapGenerator:
+  - name: litellm-config
+    files:
+      - config.yaml

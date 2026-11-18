@@ -1,0 +1,4 @@
+resources:
+  - serviceaccount.yaml.template
+  - configmap.yaml.template
+  - deployment.yaml.template

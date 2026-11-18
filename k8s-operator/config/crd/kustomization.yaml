@@ -1,0 +1,2 @@
+resources:
+  - bases/kubeagents.x-k8s.io_platformagents.yaml

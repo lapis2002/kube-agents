@@ -1,0 +1,23 @@
+name: Staging Redeploy Agent
+
+on:
+  push:
+    tags:
+      - "staging/**"
+
+concurrency:
+  group: staging-redeploy-agent
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  call-deploy:
+    if: github.repository == 'gke-labs/kube-agents'
+    uses: ./.github/workflows/reusable-deploy-agent.yml
+    with:
+      target_environment: "staging"
+      agent_tag: ${{ github.sha }}
+      checkout_ref: ${{ github.ref }}

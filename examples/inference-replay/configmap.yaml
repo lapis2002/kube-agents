@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inference-replay-config
+  namespace: kubeagents-system
+data:
+  mode: "off"

@@ -1,0 +1,61 @@
+# MCP Servers configuration.
+mcp_servers:
+  platform_control:
+    command: "/opt/hermes/.venv/bin/python3"
+    args:
+      - "/opt/data/scripts/platform_mcp_server.py"
+    connect_timeout: 120
+    # 5-minute timeout to support long GKE reasoning chains
+    timeout: 300
+    env:
+      KUBERNETES_SERVICE_HOST: "${KUBERNETES_SERVICE_HOST}"
+      KUBERNETES_SERVICE_PORT: "${KUBERNETES_SERVICE_PORT}"
+      HERMES_HOME: "${HERMES_HOME}"
+      GOOGLE_CHAT_PROJECT_ID: "${GOOGLE_CHAT_PROJECT_ID}"
+      GOOGLE_CHAT_SUBSCRIPTION_NAME: "${GOOGLE_CHAT_SUBSCRIPTION_NAME}"
+      API_SERVER_KEY: "${API_SERVER_KEY}"
+  gke:
+    command: "node"
+    args:
+      - "/opt/mcp-remote/dist/proxy.js"
+      - "https://container.googleapis.com/mcp"
+
+# Explicitly list platform_toolsets
+# platform_toolsets is a reserved framework key in Hermes.
+platform_toolsets:
+  cli:
+    - hermes-cli
+    - mcp-agent_common
+    - mcp-platform_control
+    - mcp-developer_knowledge
+    - mcp-gke
+  api_server:
+    - hermes-api-server
+    - mcp-agent_common
+    - mcp-platform_control
+    - mcp-developer_knowledge
+    - mcp-gke
+
+# Top-level `toolsets` gates the kanban orchestrator surface: the kanban tools
+# live in the core pool (surfaced via hermes-cli/hermes-api-server), and their
+# check_fn requires "kanban" here for a non-worker (orchestrator) profile. This
+# lets the Platform Agent create/route kanban cards for delegation. (Workers get
+# the kanban tools automatically via HERMES_KANBAN_TASK.) It does not restrict
+# any other tools.
+toolsets:
+  - kanban
+
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+  provider: multiuser_memory
+
+# The Platform Agent is no longer the chat ingress (the Chat Agent / `default`
+# profile owns that), so the session_store / session_otel_bridge ingress plugins
+# move to the Chat Agent. Keep otel for observability parity and tool_call_audit
+# to audit this privileged specialist's tool calls.
+plugins:
+  enabled:
+    - hermes_otel
+    - tool_call_audit
+    - incident_context

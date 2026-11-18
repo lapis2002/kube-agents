@@ -1,0 +1,14 @@
+bin/
+
+# Environment Files
+.env
+.env.*
+!*.env.example
+k8s-operator/cover.out
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
